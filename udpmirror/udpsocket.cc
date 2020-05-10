@@ -113,11 +113,11 @@ void ovbox_udpsocket_t::send_ping(callerid_t cid, const endpoint_t& ep)
 void ovbox_udpsocket_t::send_registration(callerid_t cid, bool peer2peer,
                                           port_t port)
 {
-  std::string rver(OVBOXVERSION);
-  size_t buflen(HEADERLEN+rver.size()+1);
+  int32_t pad(0);
+  size_t buflen(HEADERLEN+sizeof(pad)+1);
   char buffer[buflen];
   size_t n(packmsg(buffer, buflen, secret, cid, PORT_REGISTER, peer2peer,
-                   rver.c_str(), rver.size()+1));
+                   (char*)(&pad), sizeof(pad)));
   send(buffer, n, port);
 }
 

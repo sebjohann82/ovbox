@@ -18,7 +18,8 @@ public:
   ~udpreceiver_t();
   const int portno;
   void srv();
-  void announce_new_connection(callerid_t cid, const ep_desc_t& ep);
+  void announce_new_connection(callerid_t cid, const endpoint_t& ep,
+                               bool peer2peer);
   void announce_connection_lost(callerid_t cid);
   void announce_latency(callerid_t cid, double lmin, double lmean, double lmax,
                         uint32_t received, uint32_t lost);
@@ -62,11 +63,12 @@ void udpreceiver_t::quitwatch()
 }
 
 void udpreceiver_t::announce_new_connection(callerid_t cid,
-                                            const ep_desc_t& ep)
+                                            const endpoint_t& ep,
+                                            bool peer2peer)
 {
   log(portno, "new connection for " + std::to_string(cid) + " from " +
-                  ep2str(ep.ep) + " in " +
-                  (ep.peer2peer ? "peer-to-peer" : "server") + "-mode v"+ep.version);
+                  ep2str(ep) + " in " +
+                  (peer2peer ? "peer-to-peer" : "server") + "-mode");
 }
 
 void udpreceiver_t::announce_connection_lost(callerid_t cid)
@@ -125,7 +127,7 @@ void udpreceiver_t::srv()
 {
   set_thread_prio(prio);
   char buffer[BUFSIZE];
-  log(portno, "Multiplex service started (version " OVBOXVERSION ")");
+  log(portno, "Multiplex service started");
   endpoint_t sender_endpoint;
   callerid_t rcallerid;
   port_t destport;
@@ -180,12 +182,7 @@ void udpreceiver_t::srv()
         case PORT_REGISTER:
           // in the register packet the sequence is used to transmit
           // peer2peer flag:
-	  std::string rver("---");
-	  if( un > 0 ){
-	    msg[un-1] = 0;
-	    rver = msg;
-	  }
-          cid_register(rcallerid, sender_endpoint, seq, rver);
+          cid_register(rcallerid, sender_endpoint, seq);
           break;
         }
       }

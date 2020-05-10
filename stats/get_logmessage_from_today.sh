@@ -1,6 +1,6 @@
 #!/bin/bash
 if test "$1" = ""; then
-    CMD="ssh ov@mplx.yourdomain.com cat ovbox/udpmirror/mplx.log"
+    CMD="cat ../udpmirror/mplx.log"
 else
     CMD="ssh $1 cat ovbox/udpmirror/mplx.log"
 fi
